@@ -5,7 +5,7 @@ import torch.nn as nn
 
 
 class PositionalEncoding(nn.Module):
-    def __init__(self, d_model, max_seq_len):
+    def __init__(self, d_model, max_seq_len=5000):
         super(PositionalEncoding, self).__init__()
         pe = torch.zeros(max_seq_len, d_model)
         position = torch.arange(0, max_seq_len).unsqueeze(1)
