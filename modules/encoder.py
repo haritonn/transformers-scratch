@@ -16,9 +16,9 @@ class EncoderClass(nn.Module):
         Immediately with skip connections
         """
         attn_scores = self.mha(x, x, x, mask)
-        x = attn_scores + self.norm1(x + self.dropout(attn_scores))
+        x = self.norm1(x + self.dropout(attn_scores))
 
         ffn_out = self.ffn(x)
-        result = ffn_out + self.norm2(x + self.dropout(ffn_out))
+        x = self.norm2(x + self.dropout(ffn_out))
 
-        return result
+        return x
