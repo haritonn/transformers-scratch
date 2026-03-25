@@ -1,5 +1,7 @@
-== About
-Имплементация архитектуры `Transformers` средствами `PyTorch` (без использования готовых реализаций, естественно).
+# About
+Имплементация архитектуры `Transformers` средствами `PyTorch`. Также реализован скрипт для проверки обучения на mock данных, с возможностью выбора количества эпох.
 
-== Запуск, результат работы
-![result](https://github.com/haritonn/transformers_scratch/blob/main/assets/result.png?raw=true)
+> (без использования готовых реализаций в духе `nn.MultiheadAttention`, естественно).
+
+## Запуск, результат работы
+![result](/assets/result.png)
