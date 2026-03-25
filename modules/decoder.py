@@ -1,6 +1,7 @@
 import torch.nn as nn
-from ffn import FeedForwardNetwork
-from mha import MultiHeadAttention
+
+from modules.ffn import FeedForwardNetwork
+from modules.mha import MultiHeadAttention
 
 
 class DecoderClass(nn.Module):
@@ -16,18 +17,13 @@ class DecoderClass(nn.Module):
         )
         self.dropout = nn.Dropout(dropout)
 
-    def forward(
-        self, x, encoder_output, self_mask=None, cross_mask=None
-    ):  # [batch_size, seq_len, d_model]
-        mha1 = self.mha1(x, x, x, self_mask)
-        x = self.norm1(x + self.dropout(mha1))
+    def forward(self, x, encoder_output, self_mask=None, cross_mask=None):
+        mha1_out = self.mha1(x, x, x, self_mask)
+        x = self.norm1(x + self.dropout(mha1_out))
+        mha2_out = self.mha2(x, encoder_output, encoder_output, cross_mask)
+        x = self.norm2(x + self.dropout(mha2_out))
 
-        mha2 = self.mha2(
-            x, encoder_output, encoder_output, cross_mask
-        )  # q - decoder, k, v - encoder
-        x = self.norm2(x + self.dropout(mha2))
-
-        ffn = self.ffn(mha2)
-        x = self.norm3(x + self.dropout(ffn))
+        ffn_out = self.ffn(x)
+        x = self.norm3(x + self.dropout(ffn_out))
 
         return x

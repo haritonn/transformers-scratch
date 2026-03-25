@@ -1,6 +1,7 @@
 import torch.nn as nn
-from ffn import FeedForwardNetwork
-from mha import MultiHeadAttention
+
+from modules.ffn import FeedForwardNetwork
+from modules.mha import MultiHeadAttention
 
 
 class EncoderClass(nn.Module):

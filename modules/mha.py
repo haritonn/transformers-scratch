@@ -46,28 +46,23 @@ class MultiHeadAttention(nn.Module):
 
     def forward(self, q, k, v, mask=None):
         batch_size = q.size(0)
+        # seq_len = q.size(1)
 
         Q, K, V = self._make_matrices(
             [self.W_q, self.W_k, self.W_v], [q, k, v], batch_size
-        )  # each: [batch_size, num_heads, seq_len, d_k]
-
-        scores = torch.matmul(Q, K.transpose(-2, -1)) / math.sqrt(
-            self.d_k
-        )  # [batch_size, num_heads, seq_len, seq_len]
-
+        )
+        scores = torch.matmul(Q, K.transpose(-2, -1)) / math.sqrt(self.d_k)
         if mask is not None:
-            scores = scores.masked_fill(mask == 0, -1e9)
+            if mask.dim() == 2:  # [batch, seq_len]
+                mask = mask.unsqueeze(1).unsqueeze(2)
+            elif mask.dim() == 3:  # [batch, 1, seq_len]
+                mask = mask.unsqueeze(1)
 
-        attention_score = F.softmax(
-            scores, dim=-1
-        )  # still [batch_size, num_heads, seq_len, seq_len]
-        context = torch.matmul(
-            attention_score, V
-        )  # [batch_size, num_heads, seq_len, d_k]
+            scores = scores.masked_fill(mask == 0, -1e9)
+        attn = F.softmax(scores, dim=-1)
+        context = torch.matmul(attn, V)  # [batch, num_heads, seq_len, d_k]
 
         context = (
             context.transpose(1, 2).contiguous().view(batch_size, -1, self.d_model)
-        )  # [batch_size, seq_len, d_model]
-        output = self.W_o(context)
-
-        return output
+        )
+        return self.W_o(context)
