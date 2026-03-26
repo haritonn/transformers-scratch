@@ -1,5 +1,6 @@
 import warnings
 
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
@@ -30,8 +31,8 @@ def train_epoch(model, train_data_loader, criterion, optimizer, device):
         optimizer.step()
         total_loss += loss.item()
 
-        if i % 20 == 0:
-            print(f"  Step {i}, Loss: {loss.item():.4f}")
+        # if i % 20 == 0:
+        #     print(f"  Step {i}, Loss: {loss.item():.4f}")
 
     return total_loss / len(train_data_loader)
 
@@ -44,13 +45,19 @@ if __name__ == "__main__":
     data = torch.randint(1, V, (N_SAMPLES, SEQ_LEN))
     dataset = TensorDataset(data, data)
     train_loader = DataLoader(dataset, batch_size=32, shuffle=True)
-    model = make_model(V, V, N=2, d_model=128, d_ff=256, h=4).to(DEVICE)
 
-    criterion = nn.NLLLoss(ignore_index=0)
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.0005)
+    amount = int(input("launches: "))
+    e = int(input("epochs: "))
 
-    e = int(input(":"))
-    for epoch in range(e):
-        print(f"Epoch {epoch}")
-        avg_loss = train_epoch(model, train_loader, criterion, optimizer, DEVICE)
-        print(f"epoch {epoch} | avg loss: {avg_loss:.4f}")
+    all_results = []
+    for _ in range(amount):
+        model = make_model(V, V, N=2, d_model=128, d_ff=256, h=4).to(DEVICE)
+        criterion = nn.NLLLoss(ignore_index=0)
+        optimizer = torch.optim.Adam(model.parameters(), lr=0.0005)
+        for epoch in range(e):
+            # print(f"Epoch {epoch}")
+            avg_loss = train_epoch(model, train_loader, criterion, optimizer, DEVICE)
+            print(f"epoch {epoch} | avg loss: {avg_loss:.4f}")
+            all_results.append(avg_loss)
+
+    print(np.mean(all_results))
